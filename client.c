@@ -53,6 +53,7 @@ int main(int argc, char** argv)
 	/* The client really does nothing more than send and receive strings forever */
 	while (1)
 	{
+		clear_buffer(buffer);
 		recv(sock, buffer, sizeof(buffer), 0);
 		printf("%s", buffer);
 		fgets(buffer, sizeof(buffer), stdin);

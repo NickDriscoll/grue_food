@@ -14,9 +14,15 @@ int convert_command_to_code(char* command)
 int main(int argc, char** argv)
 {
 	int sock;
-	char message[1024];
+	char buffer[BUFFER_SIZE];
 	char recv_char;
 	struct sockaddr_in address;
+
+	if (argc < 2)
+	{
+		printf("Usage: %s <ip address>\n", argv[0]);
+		exit(-1);
+	}
 
 	/* Populate the values of address */
 	address.sin_family = AF_INET;
@@ -24,7 +30,7 @@ int main(int argc, char** argv)
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 
-	if (inet_pton(AF_INET, "127.0.0.1", &address.sin_addr) <= 0)
+	if (inet_pton(AF_INET, argv[1], &address.sin_addr) <= 0)
 	{
 		fprintf(stderr, "Invalid address.\n");
 		exit(-1);
@@ -44,14 +50,18 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 
-	/* Get line from user */
-	printf("Enter a message: ");
-	fgets(message, sizeof(message), stdin);
+	/* The client really does nothing more than send and receive strings forever */
+	while (1)
+	{
+		recv(sock, buffer, sizeof(buffer), 0);
+		printf("%s", buffer);
+		fgets(buffer, sizeof(buffer), stdin);
 
-	/* Remove trailing \n*/
-	message[strlen(message) - 1] = '\0';
+		/* Remove trailing \n*/
+		buffer[strlen(buffer) - 1] = '\0';
 
-	send(sock, message, strlen(message), 0);
+		send(sock, buffer, strlen(buffer), 0);
+	}
 
 	return 0;
 }

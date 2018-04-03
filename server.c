@@ -2,19 +2,94 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #include "game.h"
 
-void* thread_func(void* raw_args)
+#include <pcre2.h>
+
+char check_for_match(const char* pattern, const char* text)
+{
+	pcre2_code* code;
+	char result;
+
+	code = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, 0, NULL, NULL, NULL);
+	result = pcre2_match(code, text, strlen(text), 0, 0, NULL, NULL);
+	pcre2_code_free(code);
+	return result != 1;
+}
+
+void register_user(int socket)
+{
+	int fd;
+	char buffer[BUFFER_SIZE] = "Please enter a username: ";
+	char file_path[BUFFER_SIZE*2];
+
+	/* Get username */
+	send(socket, buffer, strlen(buffer), 0);
+	recv(socket, buffer, sizeof(buffer), 0);
+
+	/* Place ./users/<username> in file_path */
+	strcpy(file_path, USER_DIR);
+	strcat(file_path, buffer);
+
+	/* If the username isn't already taken, open a new file for a new user */
+	while (access(file_path, F_OK) == 0)
+	{
+		strcpy(buffer, "Requested username has already been taken.\nPlease enter a username: ");
+		send(socket, buffer, strlen(buffer), 0);
+		recv(socket, buffer, sizeof(buffer), 0);
+
+		/* Place ./users/<username> in file_path */
+		strcpy(file_path, USER_DIR);
+		strcat(file_path, buffer);
+	}
+	fd = open(file_path, O_WRONLY);
+	write(fd, buffer, strlen(buffer));
+	close(fd);
+
+}
+
+void start_routine(int socket)
+{	
+	char buffer[BUFFER_SIZE] = "Login or register a new user? ";
+	send(socket, buffer, strlen(buffer), 0);
+	
+	while (1)
+	{
+		recv(socket, buffer, sizeof(buffer), 0);
+
+		if (check_for_match("login", buffer) == 0)
+		{
+			/*login_user(socket);*/
+			break;
+		}
+		else if (check_for_match("register", buffer) == 0)
+		{
+			register_user(socket);
+			break;
+		}
+		else
+		{
+			strcpy(buffer, "Response must be login or register.");
+			send(socket, buffer, strlen(buffer), 0);
+		}
+	}
+}
+
+void* thread_main(void* raw_args)
 {
 	thread_args* args = raw_args;
-	char buffer[1024];
+	char buffer[BUFFER_SIZE];
 
 	/* Ask if user wants to login or register */
-
-	
+	start_routine(args->socket);
 
 	/* Let the main thread know that this thread has terminated */
 	*(args->thread_flag) = 0;
@@ -26,7 +101,7 @@ int main(int argc, char** argv)
 	int listening_socket, actual_socket;
 	struct sockaddr_in address;
 	socklen_t address_len = sizeof(address);
-	char message[1024];
+	char message[BUFFER_SIZE];
 	pthread_t threads[MAX_NUMBER_OF_CONNECTIONS];
 	char thread_states[MAX_NUMBER_OF_CONNECTIONS];
 	memset(thread_states, 0, sizeof(thread_states));
@@ -75,10 +150,10 @@ int main(int argc, char** argv)
 			if (thread_states[i] == 0)
 			{
 				args->thread_flag = thread_states + i;
-				pthread_create(&threads[i], NULL, thread_func, args);
+				pthread_create(&threads[i], NULL, thread_main, args);
 				thread_states[i] = 1;
 				flag = 1;
-				printf("Thread index: %i\n", i);
+				printf("Client at thread index: %i\n", i);
 				confirmation_code = 1;
 			}
 		}

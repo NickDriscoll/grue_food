@@ -11,30 +11,18 @@
 #include <unistd.h>
 
 #include "game.h"
-
 #include <pcre2.h>
 
-void clear_buffer(char* buffer)
-{
-	bzero(buffer, BUFFER_SIZE);
-}
-
-void thread_cleanup_routine(void* arg)
-{
-	char* code = arg;
-	*code = 0;
-}
-
-char check_for_match(const char* pattern, const char* text)
+int check_for_match(const char* pattern, const char* text)
 {
 	pcre2_code* code;
-	char result;
+	int result;
 	int error;
 
 	/* Even though these two variables are never used, they're necessary because pcre2_compile
 	   and pcre2_match will not work without these things to point to.*/
 	PCRE2_SIZE offset;
-	pcre2_match_data data;
+	pcre2_match_data* data;
 
 	code = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, PCRE2_CASELESS, &error, &offset, NULL);
 	if (code == NULL)
@@ -45,9 +33,11 @@ char check_for_match(const char* pattern, const char* text)
 		pthread_exit(NULL);
 	}
 
-	result = pcre2_match(code, text, strlen(text), 0, 0, &data, NULL);
+	data = pcre2_match_data_create_from_pattern(code, NULL);
+
+	result = pcre2_match(code, text, strlen(text), 0, 0, data, NULL);
 	pcre2_code_free(code);
-	return result != 1;
+	return result >= 0;
 }
 
 void register_user(int socket)
@@ -58,6 +48,7 @@ void register_user(int socket)
 
 	/* Get username */
 	send(socket, buffer, strlen(buffer), 0);
+	clear_buffer(buffer);
 	recv(socket, buffer, sizeof(buffer), 0);
 
 	/* Place ./users/<username> in file_path */
@@ -78,7 +69,6 @@ void register_user(int socket)
 	fd = open(file_path, O_WRONLY);
 	write(fd, buffer, strlen(buffer));
 	close(fd);
-
 }
 
 void start_routine(int socket)
@@ -141,6 +131,14 @@ int main(int argc, char** argv)
 
 	/* Create and bind the listening socket */
 	listening_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+	/* Set SO_REUSEADDR 
+	if (setsockopt(listening_socket, SOL_SOCKET, SO_REUSEADDR, NULL, 0) < 0)
+	{
+		fprintf(stderr, "Error setting socket options.\n");
+		exit(-1);
+	}*/
+
 	if (listening_socket < 0)
 	{
 		fprintf(stderr, "Error creating socket.\n");

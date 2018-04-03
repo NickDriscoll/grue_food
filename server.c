@@ -14,13 +14,38 @@
 
 #include <pcre2.h>
 
+void clear_buffer(char* buffer)
+{
+	bzero(buffer, BUFFER_SIZE);
+}
+
+void thread_cleanup_routine(void* arg)
+{
+	char* code = arg;
+	*code = 0;
+}
+
 char check_for_match(const char* pattern, const char* text)
 {
 	pcre2_code* code;
 	char result;
+	int error;
 
-	code = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, 0, NULL, NULL, NULL);
-	result = pcre2_match(code, text, strlen(text), 0, 0, NULL, NULL);
+	/* Even though these two variables are never used, they're necessary because pcre2_compile
+	   and pcre2_match will not work without these things to point to.*/
+	PCRE2_SIZE offset;
+	pcre2_match_data data;
+
+	code = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, PCRE2_CASELESS, &error, &offset, NULL);
+	if (code == NULL)
+	{
+		char buffer[BUFFER_SIZE];
+		pcre2_get_error_message(error, buffer, sizeof(buffer));
+		fprintf(stderr, "%s\n", buffer);
+		pthread_exit(NULL);
+	}
+
+	result = pcre2_match(code, text, strlen(text), 0, 0, &data, NULL);
 	pcre2_code_free(code);
 	return result != 1;
 }
@@ -63,14 +88,15 @@ void start_routine(int socket)
 	
 	while (1)
 	{
+		clear_buffer(buffer);
 		recv(socket, buffer, sizeof(buffer), 0);
 
-		if (check_for_match("login", buffer) == 0)
+		if (check_for_match("login", buffer))
 		{
 			/*login_user(socket);*/
 			break;
 		}
-		else if (check_for_match("register", buffer) == 0)
+		else if (check_for_match("register", buffer))
 		{
 			register_user(socket);
 			break;
@@ -86,13 +112,15 @@ void start_routine(int socket)
 void* thread_main(void* raw_args)
 {
 	thread_args* args = raw_args;
-	char buffer[BUFFER_SIZE];
+
+	/* Push thread_cleanup_routine to cleanup stack */
+	pthread_cleanup_push(thread_cleanup_routine, args->thread_flag);
 
 	/* Ask if user wants to login or register */
 	start_routine(args->socket);
 
 	/* Let the main thread know that this thread has terminated */
-	*(args->thread_flag) = 0;
+	pthread_cleanup_pop(1);
 }
 
 int main(int argc, char** argv)

@@ -7,21 +7,22 @@
 
 #include "game.h"
 
-#define PORT 6969
-
-void* thread_func(void* args)
+void* thread_func(void* raw_args)
 {
-	/* Only arg is the accept socket */
-	int sock = (*(int*)(args));
+	thread_args* args = raw_args;
 	char buffer[1024];
 
-	recv(sock, buffer, sizeof(buffer), 0);
-	printf("Message: %s\n", buffer);
+	/* Ask if user wants to login or register */
+
+	
+
+	/* Let the main thread know that this thread has terminated */
+	*(args->thread_flag) = 0;
 }
 
 int main(int argc, char** argv)
 {
-	const int MAX_NUMBER_OF_CONNECTIONS = 5;
+	const int MAX_NUMBER_OF_CONNECTIONS = 8;
 	int listening_socket, actual_socket;
 	struct sockaddr_in address;
 	socklen_t address_len = sizeof(address);
@@ -61,23 +62,35 @@ int main(int argc, char** argv)
 	{
 		int i;
 		char flag = 0;
+		char confirmation_code;
+
 		actual_socket = accept(listening_socket, (struct sockaddr *)&address, &address_len);
-		printf("Accepting a connection.\n");
+
+		/* Create and populate arg_struct */
+		thread_args* args = malloc(sizeof(thread_args));
+		args->socket = actual_socket;
+
 		for (i = 0; i < MAX_NUMBER_OF_CONNECTIONS && flag == 0; i++)
 		{
 			if (thread_states[i] == 0)
 			{
-				pthread_create(&threads[i], NULL, thread_func, &actual_socket);
+				args->thread_flag = thread_states + i;
+				pthread_create(&threads[i], NULL, thread_func, args);
 				thread_states[i] = 1;
 				flag = 1;
 				printf("Thread index: %i\n", i);
+				confirmation_code = 1;
 			}
 		}
 
-		if (i == MAX_NUMBER_OF_CONNECTIONS - 1 && flag == 0)
-		{
+		if (flag == 0)
+		{			
 			fprintf(stderr, "ERROR: number of users at capacity!\n");
+			confirmation_code = 0;
 		}
+
+		/* Tell client if a thread was available */
+		send(actual_socket, &confirmation_code, sizeof(confirmation_code), 0);
 	}
 
 	return 0;

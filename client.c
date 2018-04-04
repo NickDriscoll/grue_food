@@ -56,6 +56,7 @@ int main(int argc, char** argv)
 		clear_buffer(buffer);
 		recv(sock, buffer, sizeof(buffer), 0);
 		printf("%s", buffer);
+		clear_buffer(buffer);
 		fgets(buffer, sizeof(buffer), stdin);
 
 		/* Remove trailing \n*/

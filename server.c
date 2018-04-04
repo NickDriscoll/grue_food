@@ -45,6 +45,7 @@ void register_user(int socket)
 	int fd;
 	char buffer[BUFFER_SIZE] = "Please enter a username: ";
 	char file_path[BUFFER_SIZE*2];
+	struct stat st = {0};
 
 	/* Get username */
 	send(socket, buffer, strlen(buffer), 0);
@@ -55,18 +56,23 @@ void register_user(int socket)
 	strcpy(file_path, USER_DIR);
 	strcat(file_path, buffer);
 
+	/* Create users directory if it doesn't already exist */
+	if (stat(USER_DIR, &st) == -1)
+		mkdir(USER_DIR, 0777);
+
 	/* If the username isn't already taken, open a new file for a new user */
 	while (access(file_path, F_OK) == 0)
 	{
 		strcpy(buffer, "Requested username has already been taken.\nPlease enter a username: ");
 		send(socket, buffer, strlen(buffer), 0);
+		clear_buffer(buffer);
 		recv(socket, buffer, sizeof(buffer), 0);
 
 		/* Place ./users/<username> in file_path */
 		strcpy(file_path, USER_DIR);
 		strcat(file_path, buffer);
 	}
-	fd = open(file_path, O_WRONLY);
+	fd = open(file_path, O_CREAT | O_WRONLY, S_IRWXU | S_IRWXG | S_IRWXO);
 	write(fd, buffer, strlen(buffer));
 	close(fd);
 }

@@ -1,6 +1,7 @@
 #include "game.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void clear_buffer(char* buffer)
 {
@@ -9,6 +10,7 @@ void clear_buffer(char* buffer)
 
 void thread_cleanup_routine(void* arg)
 {
-	char* code = arg;
-	*code = 0;
+	thread_args* args = arg;
+	*(args->thread_flag) = 0;
+	free(args);
 }

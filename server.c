@@ -110,7 +110,7 @@ void* thread_main(void* raw_args)
 	thread_args* args = raw_args;
 
 	/* Push thread_cleanup_routine to cleanup stack */
-	pthread_cleanup_push(thread_cleanup_routine, args->thread_flag);
+	pthread_cleanup_push(thread_cleanup_routine, raw_args);
 
 	/* Ask if user wants to login or register */
 	start_routine(args->socket);
@@ -128,6 +128,7 @@ int main(int argc, char** argv)
 	char message[BUFFER_SIZE];
 	pthread_t threads[MAX_NUMBER_OF_CONNECTIONS];
 	char thread_states[MAX_NUMBER_OF_CONNECTIONS];
+
 	memset(thread_states, 0, sizeof(thread_states));
 
 	/* Populate the values of address */
@@ -138,12 +139,12 @@ int main(int argc, char** argv)
 	/* Create and bind the listening socket */
 	listening_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-	/* Set SO_REUSEADDR 
-	if (setsockopt(listening_socket, SOL_SOCKET, SO_REUSEADDR, NULL, 0) < 0)
+	/* Set SO_REUSEADDR */
+	if (setsockopt(listening_socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
 	{
 		fprintf(stderr, "Error setting socket options.\n");
 		exit(-1);
-	}*/
+	}
 
 	if (listening_socket < 0)
 	{

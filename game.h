@@ -14,7 +14,7 @@ typedef struct thread_args
 typedef struct player_identity
 {
 	char name[BUFFER_SIZE];
-	uint64_t password_hash;
+	uint64_t location_id;
 } player_identity;
 
 void clear_buffer(char* buffer);

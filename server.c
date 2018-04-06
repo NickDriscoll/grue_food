@@ -68,12 +68,21 @@ void register_user(int socket)
 		clear_buffer(buffer);
 		recv(socket, buffer, sizeof(buffer), 0);
 
-		/* Place ./users/<username> in file_path */
+		/* Place users/<username> in file_path */
 		strcpy(file_path, USER_DIR);
 		strcat(file_path, buffer);
 	}
 	fd = open(file_path, O_CREAT | O_WRONLY, S_IRWXU | S_IRWXG | S_IRWXO);
 	write(fd, buffer, strlen(buffer));
+
+	clear_buffer(buffer);
+	strcpy(buffer, "Please enter a password: ");
+	send(socket, buffer, strlen(buffer), 0);
+	clear_buffer(buffer);
+	recv(socket, buffer, sizeof(buffer), 0);
+	write(fd, "\n", 1);
+	write(fd, buffer, strlen(buffer));
+
 	close(fd);
 }
 
@@ -114,6 +123,13 @@ void* thread_main(void* raw_args)
 
 	/* Ask if user wants to login or register */
 	start_routine(args->socket);
+
+	/* Drop user into game */
+	
+
+	/* Send shutdown signal */
+	char TERM = 0xFF;
+	send(args->socket, &TERM, sizeof(TERM), 0);
 
 	/* Let the main thread know that this thread has terminated */
 	pthread_cleanup_pop(1);

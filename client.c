@@ -55,6 +55,11 @@ int main(int argc, char** argv)
 	{
 		clear_buffer(buffer);
 		recv(sock, buffer, sizeof(buffer), 0);
+
+		/* Check for term signal */
+		if (*buffer == -1)
+			break;
+
 		printf("%s", buffer);
 		clear_buffer(buffer);
 		fgets(buffer, sizeof(buffer), stdin);

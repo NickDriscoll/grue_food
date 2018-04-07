@@ -48,7 +48,7 @@ void register_user(int socket)
 	struct stat st = {0};
 
 	/* Get username */
-	send(socket, buffer, strlen(buffer), 0);
+	send_message(socket, buffer, strlen(buffer));
 	clear_buffer(buffer);
 	recv(socket, buffer, sizeof(buffer), 0);
 
@@ -64,7 +64,7 @@ void register_user(int socket)
 	while (access(file_path, F_OK) == 0)
 	{
 		strcpy(buffer, "Requested username has already been taken.\nPlease enter a username: ");
-		send(socket, buffer, strlen(buffer), 0);
+		send_message(socket, buffer, strlen(buffer));
 		clear_buffer(buffer);
 		recv(socket, buffer, sizeof(buffer), 0);
 
@@ -77,7 +77,7 @@ void register_user(int socket)
 
 	clear_buffer(buffer);
 	strcpy(buffer, "Please enter a password: ");
-	send(socket, buffer, strlen(buffer), 0);
+	send_message(socket, buffer, strlen(buffer));
 	clear_buffer(buffer);
 	recv(socket, buffer, sizeof(buffer), 0);
 	write(fd, "\n", 1);
@@ -89,7 +89,7 @@ void register_user(int socket)
 void start_routine(int socket)
 {	
 	char buffer[BUFFER_SIZE] = "Login or register a new user? ";
-	send(socket, buffer, strlen(buffer), 0);
+	send_message(socket, buffer, strlen(buffer));
 	
 	while (1)
 	{
@@ -109,7 +109,7 @@ void start_routine(int socket)
 		else
 		{
 			strcpy(buffer, "Response must be login or register.");
-			send(socket, buffer, strlen(buffer), 0);
+			send_message(socket, buffer, strlen(buffer));
 		}
 	}
 }
@@ -117,6 +117,10 @@ void start_routine(int socket)
 void* thread_main(void* raw_args)
 {
 	thread_args* args = raw_args;
+	char c;
+
+	/* Receive response to OK flag */
+	recv(args->socket, &c, 1, 0);
 
 	/* Push thread_cleanup_routine to cleanup stack */
 	pthread_cleanup_push(thread_cleanup_routine, raw_args);
@@ -125,11 +129,11 @@ void* thread_main(void* raw_args)
 	start_routine(args->socket);
 
 	/* Drop user into game */
-	
+
 
 	/* Send shutdown signal */
-	char TERM = 0xFF;
-	send(args->socket, &TERM, sizeof(TERM), 0);
+	c = 0xFF;
+	send_message(args->socket, &c, 1);
 
 	/* Let the main thread know that this thread has terminated */
 	pthread_cleanup_pop(1);
@@ -214,7 +218,7 @@ int main(int argc, char** argv)
 		}
 
 		/* Tell client if a thread was available */
-		send(actual_socket, &confirmation_code, sizeof(confirmation_code), 0);
+		send_message(actual_socket, &flag, 1);
 	}
 
 	return 0;

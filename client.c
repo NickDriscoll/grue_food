@@ -49,6 +49,7 @@ int main(int argc, char** argv)
 		fprintf(stderr, "Server at capacity.\n");
 		exit(-1);
 	}
+	send(sock, &recv_char, sizeof(recv_char), 0);
 
 	/* The client really does nothing more than send and receive strings forever */
 	while (1)

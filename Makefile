@@ -7,7 +7,7 @@ all: client.o helpers.o
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-server: server.o helpers.o
+server: server.o helpers.o parser.o
 	$(CC) -o server $^ -lpthread -I/usr/local/include -L/usr/local/lib -lpcre2-8 $(CFLAGS)
 
 clean:

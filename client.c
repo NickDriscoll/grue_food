@@ -6,11 +6,6 @@
 
 #include "game.h"
 
-int convert_command_to_code(char* command)
-{
-
-}
-
 int main(int argc, char** argv)
 {
 	int sock;

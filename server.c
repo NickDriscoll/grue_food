@@ -74,6 +74,7 @@ void register_user(int socket, player_identity* player)
 	}
 	fd = open(file_path, O_CREAT | O_WRONLY, S_IRWXU | S_IRWXG | S_IRWXO);
 	write(fd, buffer, strlen(buffer));
+	strcpy(player->name, buffer);
 
 	clear_buffer(buffer);
 	strcpy(buffer, "Please enter a password: ");
@@ -82,6 +83,9 @@ void register_user(int socket, player_identity* player)
 	recv(socket, buffer, sizeof(buffer), 0);
 	write(fd, "\n", 1);
 	write(fd, buffer, strlen(buffer));
+
+	/* Initialize player with the default location */
+	player->location = parse_level_file(LEVEL_DIR "testroom.lvl");
 
 	close(fd);
 }
@@ -114,9 +118,18 @@ void start_routine(int socket, player_identity* player)
 	}
 }
 
-void game_loop()
+void game_loop(int socket, player_identity* player)
 {
+	char buffer[BUFFER_SIZE];
 
+	clear_buffer(buffer);
+	
+	/* Display name and description of current location */
+	strcat(buffer, player->location->name);
+	strcat(buffer, "\n\n");
+	strcat(buffer, player->location->description);
+	strcat(buffer, "\n>");
+	send_message(socket, buffer, strlen(buffer));
 }
 
 void* thread_main(void* raw_args)
@@ -135,7 +148,7 @@ void* thread_main(void* raw_args)
 	start_routine(args->socket, &player);
 
 	/* Drop user into game */
-
+	game_loop(args->socket, &player);
 
 	/* Send shutdown signal */
 	c = 0xFF;

@@ -1,15 +1,14 @@
-all:
-	gcc -o client client.c helpers.c
+CC=gcc
+DEPS = game.h
 
-client:
-	gcc -o client client.c helpers.c
+all: client.o helpers.o
+	$(CC) -o client client.o helpers.o
 
-server:
-	gcc -o server server.c helpers.c -lpthread -I/usr/local/include -L/usr/local/lib -lpcre2-8
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
-debug:
-	gcc -o server -g server.c helpers.c -lpthread -I/usr/local/include -L/usr/local/lib -lpcre2-8
-	gcc -o client -g client.c helpers.c
+server: server.o helpers.o
+	$(CC) -o server $^ -lpthread -I/usr/local/include -L/usr/local/lib -lpcre2-8 $(CFLAGS)
 
 clean:
-	rm server client
+	rm server client *.o

@@ -2,8 +2,9 @@
 #include <stddef.h>
 
 #define PORT 6969
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 4096
 #define USER_DIR "users/"
+#define LEVEL_DIR "levels/"
 #define PCRE2_CODE_UNIT_WIDTH 8
 
 typedef struct thread_args

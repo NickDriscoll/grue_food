@@ -40,7 +40,7 @@ int check_for_match(const char* pattern, const char* text)
 	return result >= 0;
 }
 
-void register_user(int socket)
+void register_user(int socket, player_identity* player)
 {
 	int fd;
 	char buffer[BUFFER_SIZE] = "Please enter a username: ";
@@ -86,7 +86,7 @@ void register_user(int socket)
 	close(fd);
 }
 
-void start_routine(int socket)
+void start_routine(int socket, player_identity* player)
 {	
 	char buffer[BUFFER_SIZE] = "Login or register a new user? ";
 	send_message(socket, buffer, strlen(buffer));
@@ -98,25 +98,31 @@ void start_routine(int socket)
 
 		if (check_for_match("login", buffer))
 		{
-			/*login_user(socket);*/
+			/*login_user(socket, player);*/
 			break;
 		}
 		else if (check_for_match("register", buffer))
 		{
-			register_user(socket);
+			register_user(socket, player);
 			break;
 		}
 		else
 		{
-			strcpy(buffer, "Response must be login or register.");
+			strcpy(buffer, "Response must be login or register.\nLogin or register a new user? ");
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
 }
 
+void game_loop()
+{
+
+}
+
 void* thread_main(void* raw_args)
 {
 	thread_args* args = raw_args;
+	player_identity player;
 	char c;
 
 	/* Receive response to OK flag */
@@ -126,7 +132,7 @@ void* thread_main(void* raw_args)
 	pthread_cleanup_push(thread_cleanup_routine, raw_args);
 
 	/* Ask if user wants to login or register */
-	start_routine(args->socket);
+	start_routine(args->socket, &player);
 
 	/* Drop user into game */
 

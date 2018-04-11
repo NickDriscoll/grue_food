@@ -7,6 +7,16 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+void display_linked_list(token* list)
+{
+	while (list->next_token != NULL)
+	{
+		printf("%s\n", list->token);
+		list = list->next_token;
+	}
+	printf("%s\n", list->token);
+}
+
 void add_to_list(token* list, token* new_item)
 {
 	token* current = list;
@@ -51,7 +61,14 @@ token* tokenize_file(const char* path)
 		}
 	}
 
+	/* Place final token in list */
+	current_string[i] = '\0';
+	strcpy(current_token->token, current_string);
+	current_token->next_token = NULL;
+	add_to_list(token_list, current_token);
+
 	close(fd);
+	display_linked_list(token_list);
 	return token_list;
 }
 
@@ -62,6 +79,7 @@ location* parse_level_file(const char* path)
 	location* l = malloc(sizeof(location));
 	memset(l, 0, sizeof(location));
 
+	/* We skip the first token. It's just <label>*/
 	current = list->next_token;
 
 	/* Fill the label */

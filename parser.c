@@ -47,6 +47,7 @@ token* tokenize_file(const char* path)
 		if ((c == ' ' || c == '\n' || c == '\r') && current_string[0] != '\0')
 		{
 			current_string[i] = '\0';
+
 			strcpy(current_token->token, current_string);
 			clear_buffer(current_string);
 			current_token->next_token = NULL;
@@ -94,7 +95,7 @@ location* parse_level_file(const char* path)
 	l->name[strlen(l->name) - 1] = '\0';
 
 	/* Fill the description */
-	current = current->next_token;
+	current = current->next_token->next_token;
 	while (strcmp(current->token, "</des>") != 0)
 	{
 		strcat(l->description, current->token);

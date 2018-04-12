@@ -126,7 +126,7 @@ void game_loop(int socket, player_identity* player)
 	
 	/* Display name and description of current location */
 	strcat(buffer, player->location->name);
-	strcat(buffer, "\n");
+	strcat(buffer, "\n\n");
 	strcat(buffer, player->location->description);
 	strcat(buffer, "\n>");
 	send_message(socket, buffer, strlen(buffer));

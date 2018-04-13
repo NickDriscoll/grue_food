@@ -31,6 +31,7 @@ typedef struct token
 	struct token* next_token;
 } token;
 
+void error();
 void clear_buffer(char* buffer);
 void thread_cleanup_routine(void* arg);
 int check_for_match(const char* pattern, const char* text);

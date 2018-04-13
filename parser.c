@@ -69,7 +69,7 @@ token* tokenize_file(const char* path)
 	add_to_list(token_list, current_token);
 
 	close(fd);
-	display_linked_list(token_list);
+	/*display_linked_list(token_list);*/
 	return token_list;
 }
 

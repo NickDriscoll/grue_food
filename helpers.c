@@ -9,6 +9,12 @@
 #include <errno.h>
 #include <signal.h>
 
+void error()
+{
+	fprintf(stderr, "ERROR: %s\n", strerror(errno));
+	exit(-1);
+}
+
 void clear_buffer(char* buffer)
 {
 	bzero(buffer, BUFFER_SIZE);

@@ -3,8 +3,16 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
 #include "game.h"
+
+void display_startup_message(int socket)
+{
+	char buffer[BUFFER_SIZE];
+	recv(socket, buffer, BUFFER_SIZE, 0);
+	printf("%s\n", buffer);
+}
 
 int main(int argc, char** argv)
 {
@@ -27,14 +35,12 @@ int main(int argc, char** argv)
 
 	if (inet_pton(AF_INET, argv[1], &address.sin_addr) <= 0)
 	{
-		fprintf(stderr, "Invalid address.\n");
-		exit(-1);
+		error();
 	}
 
 	if (connect(sock, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
-		fprintf(stderr, "Connection failed.\n");
-		exit(-1);
+		error();
 	}
 
 	/* Receive confirmation that a thread was available */
@@ -45,6 +51,9 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 	send(sock, &recv_char, sizeof(recv_char), 0);
+
+	/* Receive server MOTD / greeting / whatever */
+	display_startup_message(sock);
 
 	/* The client really does nothing more than send and receive strings forever */
 	while (1)

@@ -40,6 +40,12 @@ int check_for_match(const char* pattern, const char* text)
 	return result >= 0;
 }
 
+void send_MOTD(int socket)
+{
+	char* message = "****BZZZT****\n\n\n\n";
+	send(socket, message, strlen(message) + 1, 0);
+}
+
 void register_user(int socket, player_identity* player)
 {
 	int fd;
@@ -125,11 +131,14 @@ void game_loop(int socket, player_identity* player)
 	clear_buffer(buffer);
 	
 	/* Display name and description of current location */
-	strcat(buffer, player->location->name);
-	strcat(buffer, "\n\n");
-	strcat(buffer, player->location->description);
-	strcat(buffer, "\n>");
-	send_message(socket, buffer, strlen(buffer));
+
+			
+		strcat(buffer, player->location->name);
+		strcat(buffer, "\n\n");
+		strcat(buffer, player->location->description);
+		strcat(buffer, "\n>");
+		send_message(socket, buffer, strlen(buffer));
+	
 }
 
 void* thread_main(void* raw_args)
@@ -143,6 +152,9 @@ void* thread_main(void* raw_args)
 
 	/* Push thread_cleanup_routine to cleanup stack */
 	pthread_cleanup_push(thread_cleanup_routine, raw_args);
+
+	/* Send over MOTD */
+	send_MOTD(args->socket);
 
 	/* Ask if user wants to login or register */
 	start_routine(args->socket, &player);
@@ -178,30 +190,26 @@ int main(int argc, char** argv)
 	/* Create and bind the listening socket */
 	listening_socket = socket(AF_INET, SOCK_STREAM, 0);
 
+	if (listening_socket < 0)
+	{
+		error();
+	}
+
 	/* Set SO_REUSEADDR */
 	if (setsockopt(listening_socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
 	{
-		fprintf(stderr, "Error setting socket options.\n");
-		exit(-1);
-	}
-
-	if (listening_socket < 0)
-	{
-		fprintf(stderr, "Error creating socket.\n");
-		exit(-1);
-	}
+		error();
+	}	
 
 	if (bind(listening_socket, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
-		fprintf(stderr, "Unable to bind listening socket.\n");
-		exit(-1);
+		error();
 	}
 
 	/* Begin listening for connections */
 	if (listen(listening_socket, MAX_NUMBER_OF_CONNECTIONS) < 0)
 	{
-		fprintf(stderr, "Call to listen() failed.\n");
-		exit(-1);
+		error();
 	}
 	printf("Listening on port %i...\n", PORT);
 

@@ -124,30 +124,42 @@ void start_routine(int socket, player_identity* player)
 	}
 }
 
-void parse_command(const char* command, player_identity* player)
+int parse_command(const char* command, player_identity* player, int socket)
 {
+	char buffer[BUFFER_SIZE];
+	clear_buffer(buffer);
 
+	if (check_for_match("quit", command) || check_for_match("exit", command))
+	{
+		return 0;
+	}
+	else if (check_for_match("l$|look", command))
+	{
+		sprintf(buffer, "%s\n\n%s\n>", player->location->name, player->location->description);
+		send_message(socket, buffer, strlen(buffer));
+	}
+	else
+	{
+		sprintf(buffer, "I don't understand \"%s\"\n>", command);
+		send_message(socket, buffer, strlen(buffer));
+	}
+	return 1;
 }
 
 void game_loop(int socket, player_identity* player)
 {
 	char buffer[BUFFER_SIZE];
+
+	clear_buffer(buffer);
+	sprintf(buffer, "%s\n\n%s\n>", player->location->name, player->location->description);
+	send_message(socket, buffer, strlen(buffer));
 	
 	/* Display name and description of current location */
-	while (1)
+	do
 	{
-
 		clear_buffer(buffer);
-		strcat(buffer, player->location->name);
-		strcat(buffer, "\n\n");
-		strcat(buffer, player->location->description);
-		strcat(buffer, "\n>");
-		send_message(socket, buffer, strlen(buffer));
-
-		clear_buffer(buffer);
-
 		recv(socket, buffer, BUFFER_SIZE, 0);
-	}
+	} while (parse_command(buffer, player, socket));
 }
 
 void* thread_main(void* raw_args)
@@ -181,7 +193,6 @@ void* thread_main(void* raw_args)
 
 int main(int argc, char** argv)
 {
-	const int MAX_NUMBER_OF_CONNECTIONS = 8;
 	int listening_socket, actual_socket;
 	struct sockaddr_in address;
 	socklen_t address_len = sizeof(address);

@@ -6,6 +6,7 @@
 #define USER_DIR "users/"
 #define LEVEL_DIR "levels/"
 #define PCRE2_CODE_UNIT_WIDTH 8
+#define MAX_NUMBER_OF_CONNECTIONS 8
 
 typedef struct thread_args
 {

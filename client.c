@@ -16,7 +16,7 @@ void display_startup_message(int socket)
 
 void clear()
 {
-	/* Magic StackOverflow code */
+	/* Magic StackOverflow code https://stackoverflow.com/questions/2347770/how-do-you-clear-the-console-screen-in-c */
 	printf("\e[1;1H\e[2J");
 }
 
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
 	if (argc < 2)
 	{
-		printf("Usage: %s <ip address>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <ip address>\n", argv[0]);
 		exit(-1);
 	}
 

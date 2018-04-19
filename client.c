@@ -14,6 +14,12 @@ void display_startup_message(int socket)
 	printf("%s\n", buffer);
 }
 
+void clear()
+{
+	/* Magic StackOverflow code */
+	printf("\e[1;1H\e[2J");
+}
+
 int main(int argc, char** argv)
 {
 	int sock;
@@ -51,6 +57,9 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 	send(sock, &recv_char, sizeof(recv_char), 0);
+
+	/* Clear screen */
+	clear();
 
 	/* Receive server MOTD / greeting / whatever */
 	display_startup_message(sock);

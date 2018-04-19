@@ -124,21 +124,30 @@ void start_routine(int socket, player_identity* player)
 	}
 }
 
+void parse_command(const char* command, player_identity* player)
+{
+
+}
+
 void game_loop(int socket, player_identity* player)
 {
 	char buffer[BUFFER_SIZE];
-
-	clear_buffer(buffer);
 	
 	/* Display name and description of current location */
+	while (1)
+	{
 
-			
+		clear_buffer(buffer);
 		strcat(buffer, player->location->name);
 		strcat(buffer, "\n\n");
 		strcat(buffer, player->location->description);
 		strcat(buffer, "\n>");
 		send_message(socket, buffer, strlen(buffer));
-	
+
+		clear_buffer(buffer);
+
+		recv(socket, buffer, BUFFER_SIZE, 0);
+	}
 }
 
 void* thread_main(void* raw_args)

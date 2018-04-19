@@ -18,6 +18,7 @@ typedef struct location
 {
 	char name[BUFFER_SIZE];
 	char description[BUFFER_SIZE];
+	char* north;
 } location;
 
 typedef struct player_identity

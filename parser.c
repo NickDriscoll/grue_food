@@ -104,5 +104,8 @@ location* parse_level_file(const char* path)
 	}
 	l->description[strlen(l->description) - 1] = '\0';
 
+	/* Fill the north field */
+	
+
 	return l;
 }

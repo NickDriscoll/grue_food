@@ -11,34 +11,8 @@
 #include <unistd.h>
 
 #include "game.h"
-#include <pcre2.h>
+#include "regex.h"
 
-int check_for_match(const char* pattern, const char* text)
-{
-	pcre2_code* code;
-	int result;
-	int error;
-
-	/* Even though these two variables are never used, they're necessary because pcre2_compile
-	   and pcre2_match will not work without these things to point to.*/
-	PCRE2_SIZE offset;
-	pcre2_match_data* data;
-
-	code = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, PCRE2_CASELESS, &error, &offset, NULL);
-	if (code == NULL)
-	{
-		char buffer[BUFFER_SIZE];
-		pcre2_get_error_message(error, buffer, sizeof(buffer));
-		fprintf(stderr, "%s\n", buffer);
-		pthread_exit(NULL);
-	}
-
-	data = pcre2_match_data_create_from_pattern(code, NULL);
-
-	result = pcre2_match(code, text, strlen(text), 0, 0, data, NULL);
-	pcre2_code_free(code);
-	return result >= 0;
-}
 
 void send_MOTD(int socket)
 {
@@ -106,12 +80,12 @@ void start_routine(int socket, player_identity* player)
 		clear_buffer(buffer);
 		recv(socket, buffer, sizeof(buffer), 0);
 
-		if (check_for_match("login", buffer))
+		if (check_for_match((PCRE2_SPTR8)"login", (PCRE2_SPTR8)buffer))
 		{
 			/*login_user(socket, player);*/
 			break;
 		}
-		else if (check_for_match("register", buffer))
+		else if (check_for_match((PCRE2_SPTR8)"register", (PCRE2_SPTR8)buffer))
 		{
 			register_user(socket, player);
 			break;
@@ -129,11 +103,11 @@ int parse_command(const char* command, player_identity* player, int socket)
 	char buffer[BUFFER_SIZE];
 	clear_buffer(buffer);
 
-	if (check_for_match("quit", command) || check_for_match("exit", command))
+	if (check_for_match((PCRE2_SPTR8)"quit|exit", (PCRE2_SPTR8)command))
 	{
 		return 0;
 	}
-	else if (check_for_match("l$|look", command))
+	else if (check_for_match((PCRE2_SPTR8)"l$|look", (PCRE2_SPTR8)command))
 	{
 		sprintf(buffer, "%s\n\n%s\n>", player->location->name, player->location->description);
 		send_message(socket, buffer, strlen(buffer));
@@ -189,6 +163,8 @@ void* thread_main(void* raw_args)
 
 	/* Let the main thread know that this thread has terminated */
 	pthread_cleanup_pop(1);
+
+	return NULL;
 }
 
 int main(int argc, char** argv)
@@ -196,7 +172,6 @@ int main(int argc, char** argv)
 	int listening_socket, actual_socket;
 	struct sockaddr_in address;
 	socklen_t address_len = sizeof(address);
-	char message[BUFFER_SIZE];
 	pthread_t threads[MAX_NUMBER_OF_CONNECTIONS];
 	char thread_states[MAX_NUMBER_OF_CONNECTIONS];
 
@@ -237,7 +212,6 @@ int main(int argc, char** argv)
 	{
 		int i;
 		char flag = 0;
-		char confirmation_code;
 
 		actual_socket = accept(listening_socket, (struct sockaddr *)&address, &address_len);
 
@@ -254,14 +228,12 @@ int main(int argc, char** argv)
 				thread_states[i] = 1;
 				flag = 1;
 				printf("Client at thread index: %i\n", i);
-				confirmation_code = 1;
 			}
 		}
 
 		if (flag == 0)
 		{			
 			fprintf(stderr, "ERROR: number of users at capacity!\n");
-			confirmation_code = 0;
 		}
 
 		/* Tell client if a thread was available */

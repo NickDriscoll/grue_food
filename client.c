@@ -16,8 +16,14 @@ void display_startup_message(int socket)
 
 void clear()
 {
+#ifdef __linux__
 	/* Magic StackOverflow code https://stackoverflow.com/questions/2347770/how-do-you-clear-the-console-screen-in-c */
 	printf("\e[1;1H\e[2J");
+#elif __WIN32
+	int i;
+	for (i = 0; i < 50; i++)
+		printf("\n");
+#endif
 }
 
 int main(int argc, char** argv)

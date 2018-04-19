@@ -1,3 +1,7 @@
-<label> Test room </label>
-<des> This is simply a test room to see if the engine is functioning correctly.
-You should probably never see this. </des>
+<label>
+Test room
+</label>
+<des>
+This is simply a test room to see if the engine is functioning correctly.
+You should probably never see this.
+</des>

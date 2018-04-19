@@ -5,7 +5,6 @@
 #define BUFFER_SIZE 4096
 #define USER_DIR "users/"
 #define LEVEL_DIR "levels/"
-#define PCRE2_CODE_UNIT_WIDTH 8
 #define MAX_NUMBER_OF_CONNECTIONS 8
 
 typedef struct thread_args
@@ -36,6 +35,5 @@ typedef struct token
 void error();
 void clear_buffer(char* buffer);
 void thread_cleanup_routine(void* arg);
-int check_for_match(const char* pattern, const char* text);
 void send_message(int socket, const void* buffer, size_t len);
 location* parse_level_file(const char* path);

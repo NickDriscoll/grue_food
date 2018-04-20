@@ -17,7 +17,7 @@
 void send_MOTD(int socket)
 {
 	char* message = "****BZZZT****\n\n\n\n";
-	send(socket, message, strlen(message) + 1, 0);
+	send_message(socket, message, strlen(message) + 1);
 }
 
 void register_user(int socket, player_identity* player)
@@ -33,8 +33,7 @@ void register_user(int socket, player_identity* player)
 	recv(socket, buffer, sizeof(buffer), 0);
 
 	/* Place ./users/<username> in file_path */
-	strcpy(file_path, USER_DIR);
-	strcat(file_path, buffer);
+	sprintf(file_path, "%s%s", USER_DIR, buffer);
 
 	/* Create users directory if it doesn't already exist */
 	if (stat(USER_DIR, &st) == -1)
@@ -49,11 +48,11 @@ void register_user(int socket, player_identity* player)
 		recv(socket, buffer, sizeof(buffer), 0);
 
 		/* Place users/<username> in file_path */
-		strcpy(file_path, USER_DIR);
-		strcat(file_path, buffer);
+		sprintf(file_path, "%s%s", USER_DIR, buffer);
 	}
+
 	fd = open(file_path, O_CREAT | O_WRONLY, S_IRWXU | S_IRWXG | S_IRWXO);
-	write(fd, buffer, strlen(buffer));
+
 	strcpy(player->name, buffer);
 
 	clear_buffer(buffer);
@@ -61,11 +60,76 @@ void register_user(int socket, player_identity* player)
 	send_message(socket, buffer, strlen(buffer));
 	clear_buffer(buffer);
 	recv(socket, buffer, sizeof(buffer), 0);
-	write(fd, "\n", 1);
 	write(fd, buffer, strlen(buffer));
+	write(fd, "\n", 1);
 
 	/* Initialize player with the default location */
-	player->location = parse_level_file(LEVEL_DIR "testroom.lvl");
+	char* default_location = LEVEL_DIR "testroom.lvl";
+	player->location = parse_level_file(default_location);
+	write(fd, default_location, strlen(default_location));
+	write(fd, "\n", 1);
+
+	close(fd);
+}
+
+void login_user(int socket, player_identity* player)
+{
+	char buffer[BUFFER_SIZE];
+	char buffer2[BUFFER_SIZE];
+	char file_path[BUFFER_SIZE * 2];
+	char password[BUFFER_SIZE];
+	char c;
+	int fd;
+
+	sprintf(buffer, "Please enter your username: ");
+	send_message(socket, buffer, strlen(buffer));
+	clear_buffer(buffer);
+	recv(socket, buffer, BUFFER_SIZE, 0);
+
+	sprintf(file_path, "%s%s", USER_DIR, buffer);
+
+	while (access(file_path, F_OK) != 0)
+	{
+		sprintf(buffer2, "No user named %s exists.\nPlease enter your username: ", buffer);
+		send_message(socket, buffer2, strlen(buffer2));
+		clear_buffer(buffer);
+		recv(socket, buffer, BUFFER_SIZE, 0);
+		sprintf(file_path, "%s%s", USER_DIR, buffer);
+	}
+	fd = open(file_path, O_RDONLY);
+
+	strcpy(player->name, buffer);
+
+	/* Validate password */
+	sprintf(buffer, "Please enter your password: ");
+	send_message(socket, buffer, strlen(buffer));
+	clear_buffer(buffer);
+	recv(socket, buffer, BUFFER_SIZE, 0);
+
+	/* Read the first line from the user file */
+	while (read(fd, &c, 1) > 0 && c != '\n')
+	{
+		strncat(password, &c, 1);
+	}
+
+	/* Compare */
+	while (strcmp(buffer, password) != 0)
+	{
+		sprintf(buffer, "Incorrect password\nPlease enter your password: ");
+		send_message(socket, buffer, strlen(buffer));
+		clear_buffer(buffer);
+		recv(socket, buffer, BUFFER_SIZE, 0);
+	}
+
+	/* At this point, the password entered is correct */
+	/* Read path to current location */
+	bzero(file_path, sizeof(file_path));
+	while (read(fd, &c, 1) > 0 && c != '\n')
+	{
+		strncat(file_path, &c, 1);
+	}
+
+	player->location = parse_level_file(file_path);
 
 	close(fd);
 }
@@ -82,7 +146,7 @@ void start_routine(int socket, player_identity* player)
 
 		if (check_for_match((PCRE2_SPTR8)"login", (PCRE2_SPTR8)buffer))
 		{
-			/*login_user(socket, player);*/
+			login_user(socket, player);
 			break;
 		}
 		else if (check_for_match((PCRE2_SPTR8)"register", (PCRE2_SPTR8)buffer))
@@ -158,7 +222,7 @@ void* thread_main(void* raw_args)
 	game_loop(args->socket, &player);
 
 	/* Send shutdown signal */
-	c = 0xFF;
+	c = SHUTDOWN_SIGNAL;
 	send_message(args->socket, &c, 1);
 
 	/* Let the main thread know that this thread has terminated */

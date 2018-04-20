@@ -6,6 +6,7 @@
 #define USER_DIR "users/"
 #define LEVEL_DIR "levels/"
 #define MAX_NUMBER_OF_CONNECTIONS 8
+#define SHUTDOWN_SIGNAL 0xFF
 
 typedef struct thread_args
 {

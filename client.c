@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 		recv(sock, buffer, sizeof(buffer), 0);
 
 		/* Check for term signal */
-		if (*buffer == -1)
+		if ((unsigned char)(*buffer) == SHUTDOWN_SIGNAL)
 			break;
 
 		printf("%s", buffer);

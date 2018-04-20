@@ -32,11 +32,17 @@ int main(int argc, char** argv)
 	char buffer[BUFFER_SIZE];
 	char recv_char;
 	struct sockaddr_in address;
+	char addr_string[BUFFER_SIZE];
 
 	if (argc < 2)
 	{
-		fprintf(stderr, "Usage: %s <ip address>\n", argv[0]);
-		exit(-1);
+		printf("Enter the IP address of the server: ");
+		fgets(addr_string, BUFFER_SIZE, stdin);
+		addr_string[strlen(addr_string) - 1] = '\0';
+	}
+	else
+	{
+		strcpy(addr_string, argv[1]);
 	}
 
 	/* Populate the values of address */
@@ -45,10 +51,12 @@ int main(int argc, char** argv)
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 
-	if (inet_pton(AF_INET, argv[1], &address.sin_addr) <= 0)
+	if (inet_pton(AF_INET, addr_string, &address.sin_addr) <= 0)
 	{
 		error();
 	}
+
+	printf("Connecting to server...\n");
 
 	if (connect(sock, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{

@@ -44,8 +44,11 @@ token* tokenize_file(const char* path)
 
 	while (read(fd, &c, 1) > 0)
 	{
-		if ((c == ' ' || c == '\n' || c == '\r') && current_string[0] != '\0')
+		if ((c == ' ' || c == '\n' || c == '\r'))
 		{
+			if (current_string[0] == '\0')
+				continue;
+
 			current_string[i] = '\0';
 
 			strcpy(current_token->token, current_string);

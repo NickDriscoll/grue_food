@@ -72,7 +72,6 @@ token* tokenize_file(const char* path)
 	add_to_list(token_list, current_token);
 
 	close(fd);
-	/*display_linked_list(token_list);*/
 	return token_list;
 }
 
@@ -105,6 +104,8 @@ location* parse_level_file(const char* path)
 		strcat(l->description, " ");
 		current = current->next_token;
 	}
+
+	/* Replace final space with \0 */
 	l->description[strlen(l->description) - 1] = '\0';
 
 	/* Fill the north field */

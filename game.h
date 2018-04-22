@@ -2,7 +2,7 @@
 #include <stddef.h>
 
 #define PORT 6969
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 2048
 #define USER_DIR "users/"
 #define LEVEL_DIR "levels/"
 #define MAX_NUMBER_OF_CONNECTIONS 8
@@ -18,7 +18,12 @@ typedef struct location
 {
 	char name[BUFFER_SIZE];
 	char description[BUFFER_SIZE];
+
+	/* These are all file paths to the levels that are logically around the location */
 	char* north;
+	char* south;
+	char* west;
+	char* east;
 } location;
 
 typedef struct player_identity

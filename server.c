@@ -13,7 +13,6 @@
 #include "game.h"
 #include "regex.h"
 
-
 void send_MOTD(int socket)
 {
 	char* message = "****BZZZT****\n\n\n\n";
@@ -175,6 +174,10 @@ int parse_command(const char* command, player_identity* player, int socket)
 	{
 		sprintf(buffer, "%s\n\n%s\n>", player->location->name, player->location->description);
 		send_message(socket, buffer, strlen(buffer));
+	}
+	else if (check_for_match((PCRE2_SPTR8)"n$|north", (PCRE2_SPTR8)))
+	{
+
 	}
 	else
 	{

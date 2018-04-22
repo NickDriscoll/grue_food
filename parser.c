@@ -75,41 +75,45 @@ token* tokenize_file(const char* path)
 	return token_list;
 }
 
+void parse_chunk(token** list, char* field, char* tag)
+{
+	char buffer[BUFFER_SIZE];
+	clear_buffer(buffer);
+
+	while (strcmp((*list)->token, tag) != 0)
+	{
+		strcat(buffer, (*list)->token);
+		strcat(buffer, " ");
+		*list = (*list)->next_token;
+	}
+	
+	/* Remove trailing space */
+	buffer[strlen(buffer) - 1] = '\0';
+	*list = (*list)->next_token;
+
+	strcpy(field, buffer);
+}
+
 location* parse_level_file(const char* path)
 {
-	token* list = tokenize_file(path);
-	token* current;
+	token* current = tokenize_file(path);
 	location* l = malloc(sizeof(location));
 	memset(l, 0, sizeof(location));
 
-	/* We skip the first token. It's just <label>*/
-	current = list->next_token;
-
-	/* Fill the label */
-	while (strcmp(current->token, "</label>") != 0)
+	/* Recursive descent parse until all tokens have been consumed */
+	while (current != NULL)
 	{
-		strcat(l->name, current->token);
-		strcat(l->name, " ");
-		current = current->next_token;
+		if (strcmp(current->token, "<label>") == 0)
+		{
+			current = current->next_token;
+			parse_chunk(&current, l->name, "</label>");
+		}
+		else if (strcmp(current->token, "<des>") == 0)
+		{
+			current = current->next_token;
+			parse_chunk(&current, l->description, "</des>");
+		}
 	}
-
-	/* Replace final space with \0 */
-	l->name[strlen(l->name) - 1] = '\0';
-
-	/* Fill the description */
-	current = current->next_token->next_token;
-	while (strcmp(current->token, "</des>") != 0)
-	{
-		strcat(l->description, current->token);
-		strcat(l->description, " ");
-		current = current->next_token;
-	}
-
-	/* Replace final space with \0 */
-	l->description[strlen(l->description) - 1] = '\0';
-
-	/* Fill the north field */
-	
 
 	return l;
 }

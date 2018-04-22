@@ -19,7 +19,7 @@ typedef struct location
 	char name[BUFFER_SIZE];
 	char description[BUFFER_SIZE];
 
-	/* These are all file paths to the levels that are logically around the location */
+	/* These are all file paths to the locations that are logically around the current location */
 	char* north;
 	char* south;
 	char* west;

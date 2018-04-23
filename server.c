@@ -143,12 +143,12 @@ void start_routine(int socket, player_identity* player)
 		clear_buffer(buffer);
 		recv(socket, buffer, sizeof(buffer), 0);
 
-		if (check_for_match((PCRE2_SPTR8)"login", (PCRE2_SPTR8)buffer))
+		if (check_for_match((PCRE2_SPTR8)"l$|login", (PCRE2_SPTR8)buffer))
 		{
 			login_user(socket, player);
 			break;
 		}
-		else if (check_for_match((PCRE2_SPTR8)"register", (PCRE2_SPTR8)buffer))
+		else if (check_for_match((PCRE2_SPTR8)"r$|register", (PCRE2_SPTR8)buffer))
 		{
 			register_user(socket, player);
 			break;
@@ -159,6 +159,13 @@ void start_routine(int socket, player_identity* player)
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
+}
+
+void look(int socket, player_identity* player)
+{
+	char buffer[BUFFER_SIZE];
+	sprintf(buffer, "%s\n\n%s\n>", player->location->name, player->location->description);
+	send_message(socket, buffer, strlen(buffer));
 }
 
 int parse_command(const char* command, player_identity* player, int socket)
@@ -172,12 +179,14 @@ int parse_command(const char* command, player_identity* player, int socket)
 	}
 	else if (check_for_match((PCRE2_SPTR8)"l$|look", (PCRE2_SPTR8)command))
 	{
-		sprintf(buffer, "%s\n\n%s\n>", player->location->name, player->location->description);
-		send_message(socket, buffer, strlen(buffer));
+		look(socket, player);
 	}
 	else if (check_for_match((PCRE2_SPTR8)"n$|north", (PCRE2_SPTR8)command))
 	{
-
+		char path[BUFFER_SIZE];
+		sprintf(path, "%s%s", LEVEL_DIR, player->location->north);
+		player->location = parse_level_file(path);
+		look(socket, player);
 	}
 	else
 	{

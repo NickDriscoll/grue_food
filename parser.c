@@ -88,7 +88,8 @@ void parse_chunk(token** list, char* field, char* tag)
 	}
 	
 	/* Remove trailing space */
-	buffer[strlen(buffer) - 1] = '\0';
+	if (strlen(buffer) != 0)
+		buffer[strlen(buffer) - 1] = '\0';
 	*list = (*list)->next_token;
 
 	strcpy(field, buffer);
@@ -112,6 +113,11 @@ location* parse_level_file(const char* path)
 		{
 			current = current->next_token;
 			parse_chunk(&current, l->description, "</des>");
+		}
+		else if (strcmp(current->token, "<north>") == 0)
+		{
+			current = current->next_token;
+			parse_chunk(&current, l->north, "</north>");
 		}
 	}
 

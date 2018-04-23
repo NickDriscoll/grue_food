@@ -20,10 +20,10 @@ typedef struct location
 	char description[BUFFER_SIZE];
 
 	/* These are all file paths to the locations that are logically around the current location */
-	char* north;
-	char* south;
-	char* west;
-	char* east;
+	char north[BUFFER_SIZE];
+	char south[BUFFER_SIZE];
+	char west[BUFFER_SIZE];
+	char east[BUFFER_SIZE];
 } location;
 
 typedef struct player_identity

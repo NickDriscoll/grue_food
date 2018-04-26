@@ -122,17 +122,17 @@ location* parse_level_file(const char* path)
 		else if (strcmp(current->token, "<south>") == 0)
 		{
 			current = current->next_token;
-			parse_chunk(&current, l->north, "</south>");
+			parse_chunk(&current, l->south, "</south>");
 		}
 		else if (strcmp(current->token, "<west>") == 0)
 		{
 			current = current->next_token;
-			parse_chunk(&current, l->north, "</west>");
+			parse_chunk(&current, l->west, "</west>");
 		}
 		else if (strcmp(current->token, "<east>") == 0)
 		{
 			current = current->next_token;
-			parse_chunk(&current, l->north, "</east>");
+			parse_chunk(&current, l->east, "</east>");
 		}
 	}
 

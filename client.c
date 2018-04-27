@@ -29,7 +29,8 @@ void clear()
 int main(int argc, char** argv)
 {
 	int sock;
-	char buffer[BUFFER_SIZE];
+	char* buffer = malloc(BUFFER_SIZE);
+	size_t n = BUFFER_SIZE;
 	char recv_char;
 	struct sockaddr_in address;
 	char addr_string[BUFFER_SIZE];
@@ -82,7 +83,7 @@ int main(int argc, char** argv)
 	while (1)
 	{
 		clear_buffer(buffer);
-		recv(sock, buffer, sizeof(buffer), 0);
+		recv(sock, buffer, BUFFER_SIZE, 0);
 
 		/* Check for term signal */
 		if ((unsigned char)(*buffer) == SHUTDOWN_SIGNAL)
@@ -90,12 +91,12 @@ int main(int argc, char** argv)
 
 		printf("%s", buffer);
 		clear_buffer(buffer);
-		fgets(buffer, sizeof(buffer), stdin);
+		getline(&buffer, &n, stdin);
 
 		/* Remove trailing \n*/
 		buffer[strlen(buffer) - 1] = '\0';
 
-		send(sock, buffer, strlen(buffer), 0);
+		send(sock, buffer, strlen(buffer) + 1, 0);
 	}
 
 	return 0;

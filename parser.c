@@ -116,22 +116,22 @@ location* parse_level_file(const char* path)
 		else if (strcmp(current->token, "<north>") == 0)
 		{
 			current = current->next_token;
-			parse_chunk(&current, l->north, "</north>");
+			parse_chunk(&current, l->directions[north], "</north>");
 		}
 		else if (strcmp(current->token, "<south>") == 0)
 		{
 			current = current->next_token;
-			parse_chunk(&current, l->south, "</south>");
+			parse_chunk(&current, l->directions[south], "</south>");
 		}
 		else if (strcmp(current->token, "<west>") == 0)
 		{
 			current = current->next_token;
-			parse_chunk(&current, l->west, "</west>");
+			parse_chunk(&current, l->directions[west], "</west>");
 		}
 		else if (strcmp(current->token, "<east>") == 0)
 		{
 			current = current->next_token;
-			parse_chunk(&current, l->east, "</east>");
+			parse_chunk(&current, l->directions[east], "</east>");
 		}
 	}
 

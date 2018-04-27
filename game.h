@@ -20,10 +20,7 @@ typedef struct location
 	char description[BUFFER_SIZE];
 
 	/* These are all file paths to the locations that are logically around the current location */
-	char north[BUFFER_SIZE];
-	char south[BUFFER_SIZE];
-	char west[BUFFER_SIZE];
-	char east[BUFFER_SIZE];
+	char directions[4][BUFFER_SIZE];
 } location;
 
 typedef struct player_identity
@@ -37,6 +34,14 @@ typedef struct token
 	char token[BUFFER_SIZE];
 	struct token* next_token;
 } token;
+
+typedef enum direction
+{
+	north = 0,
+	south = 1,
+	west = 2,
+	east = 3
+} direction;
 
 void error();
 void clear_buffer(char* buffer);

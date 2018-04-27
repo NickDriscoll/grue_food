@@ -168,13 +168,13 @@ void look(int socket, player_identity* player)
 	send_message(socket, buffer, strlen(buffer));
 }
 
-int try_move_north(player_identity* player)
+int try_move(player_identity* player, direction d)
 {
 	char path[BUFFER_SIZE];
-	if (player->location->north[0] == '\0')
+	if (player->location->directions[d][0] == '\0')
 		return 0;
 
-	sprintf(path, "%s%s", LEVEL_DIR, player->location->north);
+	sprintf(path, "%s%s", LEVEL_DIR, player->location->directions[d]);
 	player->location = parse_level_file(path);
 
 	return 1;
@@ -195,13 +195,49 @@ int parse_command(const char* command, player_identity* player, int socket)
 	}
 	else if (check_for_match((PCRE2_SPTR8)"^n$|north", (PCRE2_SPTR8)command))
 	{
-		if (try_move_north(player))
+		if (try_move(player, north))
 		{
 			look(socket, player);
 		}
 		else
 		{
 			strcpy(buffer, "Unable to move north.\n>");
+			send_message(socket, buffer, strlen(buffer));
+		}
+	}
+	else if (check_for_match((PCRE2_SPTR8)"^s$|south", (PCRE2_SPTR8)command))
+	{
+		if (try_move(player, south))
+		{
+			look(socket, player);
+		}
+		else
+		{
+			strcpy(buffer, "Unable to move south.\n>");
+			send_message(socket, buffer, strlen(buffer));
+		}
+	}
+	else if (check_for_match((PCRE2_SPTR8)"^w$|west", (PCRE2_SPTR8)command))
+	{
+		if (try_move(player, west))
+		{
+			look(socket, player);
+		}
+		else
+		{
+			strcpy(buffer, "Unable to move west.\n>");
+			send_message(socket, buffer, strlen(buffer));
+		}
+	}
+	else if (check_for_match((PCRE2_SPTR8)"^e$|east", (PCRE2_SPTR8)command))
+	{
+		if (try_move(player, east))
+		{
+			look(socket, player);
+		}
+		else
+		{
+			strcpy(buffer, "Unable to move east.\n>");
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}

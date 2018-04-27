@@ -143,12 +143,12 @@ void start_routine(int socket, player_identity* player)
 		clear_buffer(buffer);
 		recv(socket, buffer, sizeof(buffer), 0);
 
-		if (check_for_match((PCRE2_SPTR8)"l$|login", (PCRE2_SPTR8)buffer))
+		if (check_for_match((PCRE2_SPTR8)"^l$|login", (PCRE2_SPTR8)buffer))
 		{
 			login_user(socket, player);
 			break;
 		}
-		else if (check_for_match((PCRE2_SPTR8)"r$|register", (PCRE2_SPTR8)buffer))
+		else if (check_for_match((PCRE2_SPTR8)"^r$|register", (PCRE2_SPTR8)buffer))
 		{
 			register_user(socket, player);
 			break;
@@ -168,6 +168,18 @@ void look(int socket, player_identity* player)
 	send_message(socket, buffer, strlen(buffer));
 }
 
+int try_move_north(player_identity* player)
+{
+	char path[BUFFER_SIZE];
+	if (player->location->north[0] == '\0')
+		return 0;
+
+	sprintf(path, "%s%s", LEVEL_DIR, player->location->north);
+	player->location = parse_level_file(path);
+
+	return 1;
+}
+
 int parse_command(const char* command, player_identity* player, int socket)
 {
 	char buffer[BUFFER_SIZE];
@@ -177,16 +189,21 @@ int parse_command(const char* command, player_identity* player, int socket)
 	{
 		return 0;
 	}
-	else if (check_for_match((PCRE2_SPTR8)"l$|look", (PCRE2_SPTR8)command))
+	else if (check_for_match((PCRE2_SPTR8)"^l$|look", (PCRE2_SPTR8)command))
 	{
 		look(socket, player);
 	}
-	else if (check_for_match((PCRE2_SPTR8)"n$|north", (PCRE2_SPTR8)command))
+	else if (check_for_match((PCRE2_SPTR8)"^n$|north", (PCRE2_SPTR8)command))
 	{
-		char path[BUFFER_SIZE];
-		sprintf(path, "%s%s", LEVEL_DIR, player->location->north);
-		player->location = parse_level_file(path);
-		look(socket, player);
+		if (try_move_north(player))
+		{
+			look(socket, player);
+		}
+		else
+		{
+			strcpy(buffer, "Unable to move north.\n>");
+			send_message(socket, buffer, strlen(buffer));
+		}
 	}
 	else
 	{

@@ -98,8 +98,7 @@ void parse_chunk(token** list, char* field, char* tag)
 location* parse_level_file(const char* path)
 {
 	token* current = tokenize_file(path);
-	location* l = malloc(sizeof(location));
-	memset(l, 0, sizeof(location));
+	location* l = calloc(1, sizeof(location));
 
 	/* Recursive descent parse until all tokens have been consumed */
 	while (current != NULL)

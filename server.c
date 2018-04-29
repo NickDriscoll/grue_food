@@ -15,7 +15,7 @@
 
 void send_MOTD(int socket)
 {
-	char* message = "****BZZZT****\n\n\n\n";
+	char* message = "****BZZZT****\n\n\n";
 	send_message(socket, message, strlen(message) + 1);
 }
 
@@ -41,7 +41,7 @@ void register_user(int socket, player_identity* player)
 	/* If the username isn't already taken, open a new file for a new user */
 	while (access(file_path, F_OK) == 0)
 	{
-		strcpy(buffer, "Requested username has already been taken.\nPlease enter a username: ");
+		strcpy(buffer, "Requested username has already been taken.\n\nPlease enter a username: ");
 		send_message(socket, buffer, strlen(buffer));
 		clear_buffer(buffer);
 		recv(socket, buffer, sizeof(buffer), 0);
@@ -89,7 +89,7 @@ void login_user(int socket, player_identity* player)
 
 	while (access(file_path, F_OK) != 0)
 	{
-		sprintf(buffer2, "No user named %s exists.\nPlease enter your username: ", buffer);
+		sprintf(buffer2, "No user named %s exists.\n\nPlease enter your username: ", buffer);
 		send_message(socket, buffer2, strlen(buffer2));
 		clear_buffer(buffer);
 		recv(socket, buffer, BUFFER_SIZE, 0);
@@ -114,7 +114,7 @@ void login_user(int socket, player_identity* player)
 	/* Compare */
 	while (strcmp(buffer, password) != 0)
 	{
-		sprintf(buffer, "Incorrect password\nPlease enter your password: ");
+		sprintf(buffer, "Incorrect password\n\nPlease enter your password: ");
 		send_message(socket, buffer, strlen(buffer));
 		clear_buffer(buffer);
 		recv(socket, buffer, BUFFER_SIZE, 0);
@@ -155,7 +155,7 @@ void start_routine(int socket, player_identity* player)
 		}
 		else
 		{
-			strcpy(buffer, "Response must be login or register.\nLogin or register a new user? ");
+			strcpy(buffer, "Response must be login or register.\n\nLogin or register a new user? ");
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
@@ -164,7 +164,7 @@ void start_routine(int socket, player_identity* player)
 void look(int socket, player_identity* player)
 {
 	char buffer[BUFFER_SIZE];
-	sprintf(buffer, "%s\n\n%s\n>", player->location->name, player->location->description);
+	sprintf(buffer, "%s\n\n%s\n\n>", player->location->name, player->location->description);
 	send_message(socket, buffer, strlen(buffer));
 }
 
@@ -201,7 +201,7 @@ int parse_command(const char* command, player_identity* player, int socket)
 		}
 		else
 		{
-			strcpy(buffer, "Unable to move north.\n>");
+			strcpy(buffer, "Unable to move north.\n\n>");
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
@@ -225,7 +225,7 @@ int parse_command(const char* command, player_identity* player, int socket)
 		}
 		else
 		{
-			strcpy(buffer, "Unable to move west.\n>");
+			strcpy(buffer, "Unable to move west.\n\n>");
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
@@ -237,13 +237,13 @@ int parse_command(const char* command, player_identity* player, int socket)
 		}
 		else
 		{
-			strcpy(buffer, "Unable to move east.\n>");
+			strcpy(buffer, "Unable to move east.\n\n>");
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
 	else
 	{
-		sprintf(buffer, "I don't understand \"%s\"\n>", command);
+		sprintf(buffer, "I don't understand \"%s\"\n\n>", command);
 		send_message(socket, buffer, strlen(buffer));
 	}
 	return 1;
@@ -254,7 +254,7 @@ void game_loop(int socket, player_identity* player)
 	char buffer[BUFFER_SIZE];
 
 	clear_buffer(buffer);
-	sprintf(buffer, "%s\n\n%s\n>", player->location->name, player->location->description);
+	sprintf(buffer, "%s\n\n%s\n\n>", player->location->name, player->location->description);
 	send_message(socket, buffer, strlen(buffer));
 	
 	/* Display name and description of current location */

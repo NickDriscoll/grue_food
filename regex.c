@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <string.h>
 
-int check_for_match(PCRE2_SPTR8 pattern, PCRE2_SPTR8 text)
+int check_for_match(const char* pattern, const char* text)
 {
 	pcre2_code* code;
 	int result;
@@ -14,7 +14,7 @@ int check_for_match(PCRE2_SPTR8 pattern, PCRE2_SPTR8 text)
 	PCRE2_SIZE offset;
 	pcre2_match_data* data;
 
-	code = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, PCRE2_CASELESS, &error, &offset, NULL);
+	code = pcre2_compile((PCRE2_SPTR8)pattern, PCRE2_ZERO_TERMINATED, PCRE2_CASELESS, &error, &offset, NULL);
 	if (code == NULL)
 	{
 		PCRE2_UCHAR buffer[1024];
@@ -25,7 +25,7 @@ int check_for_match(PCRE2_SPTR8 pattern, PCRE2_SPTR8 text)
 
 	data = pcre2_match_data_create_from_pattern(code, NULL);
 
-	result = pcre2_match(code, text, strlen((const char*)text), 0, 0, data, NULL);
+	result = pcre2_match(code, (PCRE2_SPTR8)text, strlen(text), 0, 0, data, NULL);
 	pcre2_code_free(code);
 	return result >= 0;
 }

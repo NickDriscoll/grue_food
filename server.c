@@ -134,21 +134,20 @@ void login_user(int socket, player_identity* player)
 }
 
 void start_routine(int socket, player_identity* player)
-{	
+{
 	char buffer[BUFFER_SIZE] = "Login or register a new user? ";
 	send_message(socket, buffer, strlen(buffer));
-	
 	while (1)
 	{
 		clear_buffer(buffer);
 		recv(socket, buffer, sizeof(buffer), 0);
 
-		if (check_for_match((PCRE2_SPTR8)"^l$|login", (PCRE2_SPTR8)buffer))
+		if (check_for_match("^l$|login", buffer))
 		{
 			login_user(socket, player);
 			break;
 		}
-		else if (check_for_match((PCRE2_SPTR8)"^r$|register", (PCRE2_SPTR8)buffer))
+		else if (check_for_match("^r$|register", buffer))
 		{
 			register_user(socket, player);
 			break;
@@ -185,15 +184,15 @@ int parse_command(const char* command, player_identity* player, int socket)
 	char buffer[BUFFER_SIZE];
 	clear_buffer(buffer);
 
-	if (check_for_match((PCRE2_SPTR8)"quit|exit", (PCRE2_SPTR8)command))
+	if (check_for_match("quit|exit", command))
 	{
 		return 0;
 	}
-	else if (check_for_match((PCRE2_SPTR8)"^l$|look", (PCRE2_SPTR8)command))
+	else if (check_for_match("^l$|look", command))
 	{
 		look(socket, player);
 	}
-	else if (check_for_match((PCRE2_SPTR8)"^n$|north", (PCRE2_SPTR8)command))
+	else if (check_for_match("^n$|north", command))
 	{
 		if (try_move(player, north))
 		{
@@ -205,7 +204,7 @@ int parse_command(const char* command, player_identity* player, int socket)
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
-	else if (check_for_match((PCRE2_SPTR8)"^s$|south", (PCRE2_SPTR8)command))
+	else if (check_for_match("^s$|south", command))
 	{
 		if (try_move(player, south))
 		{
@@ -217,7 +216,7 @@ int parse_command(const char* command, player_identity* player, int socket)
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
-	else if (check_for_match((PCRE2_SPTR8)"^w$|west", (PCRE2_SPTR8)command))
+	else if (check_for_match("^w$|west", command))
 	{
 		if (try_move(player, west))
 		{
@@ -229,7 +228,7 @@ int parse_command(const char* command, player_identity* player, int socket)
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
-	else if (check_for_match((PCRE2_SPTR8)"^e$|east", (PCRE2_SPTR8)command))
+	else if (check_for_match("^e$|east", command))
 	{
 		if (try_move(player, east))
 		{

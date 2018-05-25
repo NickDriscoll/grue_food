@@ -1,6 +1,6 @@
 CC=gcc
 DEPS = game.h regex.h
-FLAGS=-Wall -O2
+FLAGS=-Wall
 
 all: client.o helpers.o
 	$(CC) -o client client.o helpers.o $(FLAGS) $(CFLAGS)

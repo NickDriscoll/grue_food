@@ -163,7 +163,7 @@ void start_routine(int socket, player_identity* player)
 void look(int socket, player_identity* player)
 {
 	char buffer[BUFFER_SIZE];
-	sprintf(buffer, "%s\n\n%s\n\n>", player->location->name, player->location->description);
+	sprintf(buffer, "\n%s\n\n%s\n\n>", player->location->name, player->location->description);
 	send_message(socket, buffer, strlen(buffer));
 }
 
@@ -200,7 +200,7 @@ int parse_command(const char* command, player_identity* player, int socket)
 		}
 		else
 		{
-			strcpy(buffer, "Unable to move north.\n\n>");
+			strcpy(buffer, "\nUnable to move north.\n\n>");
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
@@ -212,7 +212,7 @@ int parse_command(const char* command, player_identity* player, int socket)
 		}
 		else
 		{
-			strcpy(buffer, "Unable to move south.\n>");
+			strcpy(buffer, "\nUnable to move south.\n>");
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
@@ -224,7 +224,7 @@ int parse_command(const char* command, player_identity* player, int socket)
 		}
 		else
 		{
-			strcpy(buffer, "Unable to move west.\n\n>");
+			strcpy(buffer, "\nUnable to move west.\n\n>");
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
@@ -236,13 +236,13 @@ int parse_command(const char* command, player_identity* player, int socket)
 		}
 		else
 		{
-			strcpy(buffer, "Unable to move east.\n\n>");
+			strcpy(buffer, "\nUnable to move east.\n\n>");
 			send_message(socket, buffer, strlen(buffer));
 		}
 	}
 	else
 	{
-		sprintf(buffer, "I don't understand \"%s\"\n\n>", command);
+		sprintf(buffer, "\nI don't understand \"%s\"\n\n>", command);
 		send_message(socket, buffer, strlen(buffer));
 	}
 	return 1;

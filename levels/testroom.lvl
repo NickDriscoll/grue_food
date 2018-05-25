@@ -8,3 +8,6 @@ You should probably never see this.
 <north>
 another.lvl
 </north>
+<west>
+clearing.lvl
+</west>

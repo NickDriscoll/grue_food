@@ -253,9 +253,9 @@ void game_loop(int socket, player_identity* player)
 	char buffer[BUFFER_SIZE];
 
 	clear_buffer(buffer);
-	sprintf(buffer, "%s\n\n%s\n\n>", player->location->name, player->location->description);
+	sprintf(buffer, "\n%s\n\n%s\n\n>", player->location->name, player->location->description);
 	send_message(socket, buffer, strlen(buffer));
-	
+
 	/* Display name and description of current location */
 	do
 	{

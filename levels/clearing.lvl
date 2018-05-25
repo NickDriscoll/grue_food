@@ -1,0 +1,19 @@
+<label>
+Forest Clearing
+</label>
+<des>
+You find yourself standing in a forest clearing.
+A mysterious room is visible to the east.
+</des>
+<north>
+
+</north>
+<south>
+
+</south>
+<west>
+
+</west>
+<east>
+testroom.lvl
+</east>

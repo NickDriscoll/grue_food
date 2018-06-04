@@ -179,6 +179,18 @@ int try_move(player_identity* player, direction d)
 	return 1;
 }
 
+void help(int socket)
+{
+	char buffer[BUFFER_SIZE];
+	int fd = open("help.txt", O_RDONLY);
+
+	clear_buffer(buffer);
+	read(fd, buffer, BUFFER_SIZE);
+	strcat(buffer, "\n\n>");
+	send_message(socket, buffer, strlen(buffer));
+	close(fd);
+}
+
 int parse_command(const char* command, player_identity* player, int socket)
 {
 	char buffer[BUFFER_SIZE];
@@ -187,6 +199,10 @@ int parse_command(const char* command, player_identity* player, int socket)
 	if (check_for_match("quit|exit", command))
 	{
 		return 0;
+	}
+	else if (check_for_match("help", command))
+	{
+		help(socket);
 	}
 	else if (check_for_match("^l$|look", command))
 	{

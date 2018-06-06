@@ -24,7 +24,7 @@ void clear()
 int main(int argc, char** argv)
 {
 	int sock;
-	char buffer[BUFFER_SIZE];
+	char* buffer = malloc(BUFFER_SIZE);
 	size_t n = BUFFER_SIZE;
 	char recv_char;
 	struct sockaddr_in address;
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 
 		printf("%s", buffer);
 		clear_buffer(buffer);
-		if (getline((char**)&buffer, &n, stdin) < 1)
+		if (getline(&buffer, &n, stdin) < 1)
 			error();
 
 		/* Remove trailing \n*/

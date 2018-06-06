@@ -24,7 +24,7 @@ void clear()
 int main(int argc, char** argv)
 {
 	int sock;
-	char* buffer = malloc(BUFFER_SIZE);
+	char buffer[BUFFER_SIZE];
 	size_t n = BUFFER_SIZE;
 	char recv_char;
 	struct sockaddr_in address;
@@ -33,8 +33,8 @@ int main(int argc, char** argv)
 	if (argc < 2)
 	{
 		printf("Enter the IP address of the server: ");
-		if (fgets(addr_string, BUFFER_SIZE, stdin) == NULL)		
-			error();		
+		if (fgets(addr_string, BUFFER_SIZE, stdin) == NULL)
+			error();
 		addr_string[strlen(addr_string) - 1] = '\0';
 	}
 	else
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 
 		printf("%s", buffer);
 		clear_buffer(buffer);
-		if (getline(&buffer, &n, stdin) < 1)
+		if (getline((char**)&buffer, &n, stdin) < 1)
 			error();
 
 		/* Remove trailing \n*/

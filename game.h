@@ -23,10 +23,18 @@ typedef struct location
 	char directions[4][BUFFER_SIZE];
 } location;
 
+typedef struct item
+{
+	char name[BUFFER_SIZE];
+	char description[BUFFER_SIZE];
+	item* next;
+} item;
+
 typedef struct player_identity
 {
 	char name[BUFFER_SIZE];
 	location* location;
+	item* inventory;
 } player_identity;
 
 typedef struct token
@@ -46,5 +54,10 @@ typedef enum direction
 void error();
 void clear_buffer(char* buffer);
 void thread_cleanup_routine(void* arg);
+
+/* Wrapper around send() that has our settings hardcoded in */
 void send_message(int socket, const void* buffer, size_t len);
 location* parse_level_file(const char* path);
+
+/* Sorts inventory in ascending alphabetical order */
+void sort_inventory(item** inventory);

@@ -75,6 +75,14 @@ token* tokenize_file(const char* path)
 	return token_list;
 }
 
+/* I honestly feel really clever for this recursive solution */
+void free_tokens(token* list)
+{
+	if (list->next_token != NULL)
+		free_tokens(list->next_token);
+	free(list);
+}
+
 void parse_chunk(token** list, char* field, char* tag)
 {
 	char buffer[BUFFER_SIZE];
@@ -97,7 +105,8 @@ void parse_chunk(token** list, char* field, char* tag)
 
 location* parse_level_file(const char* path)
 {
-	token* current = tokenize_file(path);
+	token* list = tokenize_file(path);
+	token* current = list;
 	location* l = calloc(1, sizeof(location));
 
 	/* Recursive descent parse until all tokens have been consumed */
@@ -139,5 +148,7 @@ location* parse_level_file(const char* path)
 		}
 	}
 
+	/* Free list of tokens */
+	free_tokens(list);
 	return l;
 }

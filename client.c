@@ -33,8 +33,8 @@ int main(int argc, char** argv)
 	if (argc < 2)
 	{
 		printf("Enter the IP address of the server: ");
-		if (fgets(addr_string, BUFFER_SIZE, stdin) == NULL)		
-			error();		
+		if (fgets(addr_string, BUFFER_SIZE, stdin) == NULL)
+			error();
 		addr_string[strlen(addr_string) - 1] = '\0';
 	}
 	else

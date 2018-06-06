@@ -27,7 +27,7 @@ typedef struct item
 {
 	char name[BUFFER_SIZE];
 	char description[BUFFER_SIZE];
-	item* next;
+	struct item* next;
 } item;
 
 typedef struct player_identity
@@ -60,4 +60,4 @@ void send_message(int socket, const void* buffer, size_t len);
 location* parse_level_file(const char* path);
 
 /* Sorts inventory in ascending alphabetical order */
-void sort_inventory(item** inventory);
+item* sort_inventory(item* inventory);

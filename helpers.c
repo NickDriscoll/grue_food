@@ -34,7 +34,7 @@ void send_message(int socket, const void* buffer, size_t len)
 		pthread_exit(NULL);
 }
 
-void add_to_list(item** list, item* new_item)
+void add_to_item_list(item** list, item* new_item)
 {
 	if (*list == NULL)
 		*list = new_item;
@@ -57,25 +57,25 @@ item* merge_inventories(item* inv1, item* inv2)
 	{
 		if (strcmp(current1->name, current2->name) < 0)
 		{
-			add_to_list(&result, current1);
+			add_to_item_list(&result, current1);
 			current1 = current1->next;
 		}
 		else
 		{
-			add_to_list(&result, current2);
+			add_to_item_list(&result, current2);
 			current2 = current2->next;
 		}
 	}
 
 	while (current1 != NULL)
 	{
-		add_to_list(&result, current1);
+		add_to_item_list(&result, current1);
 		current1 = current1->next;
 	}
 
 	while (current2 != NULL)
 	{
-		add_to_list(&result, current2);
+		add_to_item_list(&result, current2);
 		current2 = current2->next;
 	}
 

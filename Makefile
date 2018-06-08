@@ -16,5 +16,10 @@ endif
 server: server.o helpers.o parser.o regex.o
 	$(CC) -o server $^ -lpthread -I/usr/local/include -L/usr/local/lib -lpcre2-8 $(FLAGS) $(CFLAGS)
 
+ifeq ($(OS), Windows_NT)
+clean:
+	rm grue_food.exe *.o
+else
 clean:
 	rm server client *.o
+endif

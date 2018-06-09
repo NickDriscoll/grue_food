@@ -3,9 +3,11 @@ DEPS = game.h regex.h
 FLAGS=-Wall
 
 ifeq ($(OS), Windows_NT)
+all: win_client.o
+	$(CC) -o grue_food.exe $^ $(FLAGS) $(CFLAGS)
 else
 all: client.o helpers.o
-	$(CC) -o client client.o helpers.o $(FLAGS) $(CFLAGS)
+	$(CC) -o client $^ $(FLAGS) $(CFLAGS)
 endif
 
 %.o: %.c $(DEPS)
@@ -14,5 +16,10 @@ endif
 server: server.o helpers.o parser.o regex.o
 	$(CC) -o server $^ -lpthread -I/usr/local/include -L/usr/local/lib -lpcre2-8 $(FLAGS) $(CFLAGS)
 
+ifeq ($(OS), Windows_NT)
+clean:
+	rm grue_food.exe *.o
+else
 clean:
 	rm server client *.o
+endif

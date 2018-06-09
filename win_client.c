@@ -6,6 +6,8 @@
 
 #include "game.h"
 
+#pragma comment(lib,"WS2_32")
+
 void clear()
 {
 	int i;
@@ -38,7 +40,7 @@ int main(int argc, char** argv)
 
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 	{
-		printf("WSAStartup failed.\n");
+		fprintf(stderr, "WSAStartup failed.\n");
 		return -1;
 	}
 
@@ -49,7 +51,7 @@ int main(int argc, char** argv)
 
 	if (getaddrinfo(addr_string, PORT, &hints, &result) != 0)
 	{
-		printf("getaddrinfo failed.\n");
+		fprintf(stderr, "getaddrinfo failed.\n");
 		WSACleanup();
 		return -1;
 	}
@@ -58,7 +60,7 @@ int main(int argc, char** argv)
 	connect_socket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 	if (connect_socket == INVALID_SOCKET)
 	{
-		printf("Error creating socket.\n");
+		fprintf(stderr, "Error creating socket.\n");
 		freeaddrinfo(result);
 		WSACleanup();
 		return -1;
@@ -66,7 +68,7 @@ int main(int argc, char** argv)
 
 	if (connect(connect_socket, ptr->ai_addr, (int)ptr->ai_addrlen) != 0)
 	{
-		printf("Unable to connect to server.\n");
+		fprintf(stderr, "Unable to connect to server.\n");
 		closesocket(connect_socket);
 		WSACleanup();
 		return -1;

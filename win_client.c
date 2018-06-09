@@ -68,12 +68,13 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	printf("Conneting to server.\n");
+	printf("Connecting to server.\n");
 	if (connect(connect_socket, ptr->ai_addr, (int)ptr->ai_addrlen) != 0)
 	{
-		fprintf(stderr, "Unable to connect to server.\n");
+		fprintf(stderr, "Unable to connect to server.\n\nPress any key to exit.");
 		closesocket(connect_socket);
 		WSACleanup();
+		getchar();
 		return -1;
 	}
 	freeaddrinfo(result);

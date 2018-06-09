@@ -6,6 +6,8 @@
 
 #include "game.h"
 
+#define PORT_STR "6969"
+
 #pragma comment(lib,"WS2_32")
 
 void clear()
@@ -35,7 +37,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		strcpy(addr_string, argv[1]);
+		strcpy_s(addr_string, BUFFER_SIZE, argv[1]);
 	}
 
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -49,7 +51,7 @@ int main(int argc, char** argv)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
-	if (getaddrinfo(addr_string, PORT, &hints, &result) != 0)
+	if (getaddrinfo((PCSTR)addr_string, PORT_STR, &hints, &result) != 0)
 	{
 		fprintf(stderr, "getaddrinfo failed.\n");
 		WSACleanup();
@@ -66,6 +68,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
+	printf("Conneting to server.\n");
 	if (connect(connect_socket, ptr->ai_addr, (int)ptr->ai_addrlen) != 0)
 	{
 		fprintf(stderr, "Unable to connect to server.\n");

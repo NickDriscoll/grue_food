@@ -75,6 +75,9 @@ int main(int argc, char** argv)
 	/* Receive server MOTD / greeting / whatever */
 	display_startup_message(sock);
 
+	/* Send signal confirming MOTD was received */
+	send(sock, &recv_char, 1, 0);
+
 	/* The client really does nothing more than send and receive strings forever */
 	while (1)
 	{

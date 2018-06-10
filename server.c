@@ -15,8 +15,12 @@
 
 void send_MOTD(int socket)
 {
+	char c;
 	char* message = "****BZZZT****\n\n\n";
 	send_message(socket, message, strlen(message) + 1);
+
+	/* Get confirmation the MOTD was received */
+	recv(socket, &c, 1 ,0);
 }
 
 void register_user(int socket, player_identity* player)

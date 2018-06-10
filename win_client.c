@@ -95,6 +95,9 @@ int main(int argc, char** argv)
 	recv(connect_socket, buffer, BUFFER_SIZE, 0);
 	printf("%s\n", buffer);
 
+	/* Send confirmation that MOTD was receied */
+	send(connect_socket, &recv_char, sizeof(recv_char), 0);
+
 	/* Main loop */
 	while (1)
 	{

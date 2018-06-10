@@ -7,16 +7,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-void display_linked_list(token* list)
-{
-	while (list->next_token != NULL)
-	{
-		printf("%s\n", list->token);
-		list = list->next_token;
-	}
-	printf("%s\n", list->token);
-}
-
 void add_to_list(token* list, token* new_item)
 {
 	token* current = list;

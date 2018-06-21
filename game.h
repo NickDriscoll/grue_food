@@ -14,6 +14,13 @@ typedef struct thread_args
 	char* thread_flag;
 } thread_args;
 
+typedef struct item
+{
+        char name[BUFFER_SIZE];
+        char description[BUFFER_SIZE];
+        struct item* next;
+} item;
+
 typedef struct location
 {
 	char name[BUFFER_SIZE];
@@ -21,14 +28,10 @@ typedef struct location
 
 	/* These are all file paths to the locations that are logically around the current location */
 	char directions[4][BUFFER_SIZE];
-} location;
 
-typedef struct item
-{
-	char name[BUFFER_SIZE];
-	char description[BUFFER_SIZE];
-	struct item* next;
-} item;
+	/* These are all of the items at the location */
+	item* inventory;
+} location;
 
 typedef struct player_identity
 {
